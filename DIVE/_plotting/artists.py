@@ -995,7 +995,9 @@ class PolygonArtist(Artist):
         visual_input = {}
         x = self.field_to_numeric(data_obj, valid_idx, str_maps['x'], self.x_field, is_1d=False, get_last=True, norm_limits=norm_limits['x'])
         y = self.field_to_numeric(data_obj, valid_idx, str_maps['y'], self.y_field, is_1d=False, get_last=True, norm_limits=norm_limits['y'])
-        visual_input['pos'] = np.column_stack([x, y])
+        z = self.field_to_numeric(data_obj, valid_idx, str_maps['z'], self.z_field, is_1d=False, get_last=True, norm_limits=norm_limits['z'])
+        visual_input['pos'] = np.column_stack([x, y]) if z is None else np.column_stack([x, y, z])
+
         if self.edge_width_field is None:
             visual_input['border_width'] = self.edge_width
         else:
@@ -1014,7 +1016,7 @@ class PolygonArtist(Artist):
         elif limit_type == 'y':
             return self.calc_limits(data_obj, valid_idx, self.y_field, is_1d=False, get_last=is_time)
         elif limit_type == 'z':
-            return self.calc_limits(data_obj, valid_idx, None, is_1d=True, get_last=is_time)
+            return self.calc_limits(data_obj, valid_idx, self.z_field, is_1d=True, get_last=is_time)
         else:
             color_fields, color_keys = [self.color_field], [(self.colormap, self.color_label, self.color_unit)]
             if self.edge_width > 0 or self.edge_width_field is not None:
@@ -1023,7 +1025,7 @@ class PolygonArtist(Artist):
             return self.calc_limits(data_obj, valid_idx, color_fields, is_1d=True, get_last=is_time, color_keys=color_keys)
 
     def get_state(self, as_copy=True):
-        state = {attr: getattr(self, attr, None) for attr in ['artist_type', 'name', 'data_name', 'x_field', 'y_field', 'visible', 'draw_order', 'legend_text', 'edge_width', 'edge_width_field', 'color', 'color_field', 'colormap', 'color_label', 'color_unit', 'edge_color', 'edge_color_field', 'edge_colormap', 'edge_color_label', 'edge_color_unit']}
+        state = {attr: getattr(self, attr, None) for attr in ['artist_type', 'name', 'data_name', 'x_field', 'y_field', 'z_field', 'visible', 'draw_order', 'legend_text', 'edge_width', 'edge_width_field', 'color', 'color_field', 'colormap', 'color_label', 'color_unit', 'edge_color', 'edge_color_field', 'edge_colormap', 'edge_color_label', 'edge_color_unit']}
         return copy.deepcopy(state) if as_copy else state
 
     def initialize(self, view):
@@ -1049,12 +1051,12 @@ class PolygonArtist(Artist):
             elif attrs['data_name'] not in data_objs:
                 return '"{}" is not a valid data name.'.format(attrs['data_name'])
             data_changed = True
-        for attr in ['x_field', 'y_field', 'edge_width_field', 'color_field', 'edge_color_field']:
+        for attr in ['x_field', 'y_field', 'z_field', 'edge_width_field', 'color_field', 'edge_color_field']:
             if attr in state or data_changed:
                 if attr in state:
                     attrs[attr] = state[attr]
-                    field_changed |= attr in ['x_field', 'y_field']
-                err_msg = validators.validate_field(attr, data_objs, attrs['data_name'], attrs[attr], required_names=['x_field', 'y_field'], optional_names=['edge_width_field', 'color_field', 'edge_color_field'])
+                    field_changed |= attr in ['x_field', 'y_field', 'z_field']
+                err_msg = validators.validate_field(attr, data_objs, attrs['data_name'], attrs[attr], required_names=['x_field', 'y_field'], optional_names=['z_field', 'edge_width_field', 'color_field', 'edge_color_field'])
                 if err_msg is not None:
                     return err_msg
         for attr in ['legend_text', 'color_label', 'edge_color_label']:
@@ -1096,8 +1098,23 @@ class PolygonArtist(Artist):
 
         if field_changed:
             data = data_objs[attrs['data_name']].data
+
+            if not (data.loc[:, attrs['x_field']].map(lambda x: hasattr(x, '__len__'))).any():
+                return 'x_field must be a field of arrays.'
+            
+            if not (data.loc[:, attrs['y_field']].map(lambda y: hasattr(y, '__len__'))).any():
+                return 'y_field must be a field of arrays.'
+            
             if (data.loc[:, attrs['x_field']].map(len) != data.loc[:, attrs['y_field']].map(len)).any():
                 return 'Every array in y_field must have the same length as its corresponding array in x_field.'
+            
+            if attrs['z_field']:
+                if not (data.loc[:, attrs['z_field']].map(lambda z: hasattr(z, '__len__'))).any():
+                    return 'z_field must be a field of arrays.'
+                if (data.loc[:, attrs['x_field']].map(len) != data.loc[:, attrs['z_field']].map(len)).any():
+                    return 'Every array in x_field must have the same length as its corresponding array in z_field.'
+                elif (data.loc[:, attrs['y_field']].map(len) != data.loc[:, attrs['z_field']].map(len)).any():
+                    return 'Every array in y_field must have the same length as its corresponding array in z_field.'
 
         for attr in attrs:
             setattr(self, attr, attrs[attr])

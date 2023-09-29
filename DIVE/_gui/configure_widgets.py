@@ -506,7 +506,10 @@ class PolygonWidget(qtwidgets.QWidget):
         self.layout().addRow('X Field:', self.x_field)
         self.y_field = qtwidgets.QComboBox()
         self.layout().addRow('Y Field:', self.y_field)
-
+        if axis_type == '3d':
+            self.z_field = add_optional_combobox(self.layout(), 'Z Field:', artist['z_field'] is not None)
+        else:
+            self.z_field = None
         color_group = qtwidgets.QGroupBox('Color')
         color_group.setLayout(qtwidgets.QFormLayout())
         self.layout().addRow(color_group)
@@ -535,6 +538,7 @@ class PolygonWidget(qtwidgets.QWidget):
                 'data_name': self.data_name.currentText(),
                 'x_field': self.x_field.currentText(),
                 'y_field': self.y_field.currentText(),
+                'z_field': self.z_field.currentText() if self.z_field is not None and self.z_field.isEnabled() else None,
                 'color': self.color.get_color(),
                 'color_field': self.color_field.currentText() if self.color_field.isEnabled() else None,
                 'colormap': self.colormap.currentText(),
@@ -555,9 +559,12 @@ class PolygonWidget(qtwidgets.QWidget):
             combo.clear()
             combo.addItems(data_names)
 
+        if self.z_field is not None:
+            self.z_field.clear()
+            self.z_field.addItems(data_names)
     @staticmethod
     def get_default_values():
-        return dict(visible=True, draw_order=0, legend_text=None, data_name=None, x_field=None, y_field=None, color='g', color_field=None, colormap='viridis', color_label=None, color_unit=None, edge_width=0, edge_width_field=None, edge_color='g', edge_color_field=None, edge_colormap='viridis', edge_color_label=None, edge_color_unit=None)
+        return dict(visible=True, draw_order=0, legend_text=None, data_name=None, x_field=None, y_field=None, z_field=None, color='g', color_field=None, colormap='viridis', color_label=None, color_unit=None, edge_width=0, edge_width_field=None, edge_color='g', edge_color_field=None, edge_colormap='viridis', edge_color_label=None, edge_color_unit=None)
 
 class RectangleWidget(qtwidgets.QWidget):
     def __init__(self, data_objs, axis_type, artist):

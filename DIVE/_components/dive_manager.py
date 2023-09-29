@@ -167,7 +167,8 @@ class DIVEManager:
         self.table.setSelectionMode(qtwidgets.QAbstractItemView.NoSelection)
         self.table.cellDoubleClicked.connect(lambda iRow, _: self.callback_data_inspect(self.table_rows[iRow]))
         splitter.addWidget(self.table)
-        splitter.setSizes([int(splitter.size().width() * 0.1), int(splitter.size().width() * 0.8), int(splitter.size().width() * 0.1)])
+        # splitter.setSizes([int(splitter.size().width() * 0.1), int(splitter.size().width() * 0.8), int(splitter.size().width() * 0.1)])
+        splitter.setSizes([splitter.size().width() * 0.1, splitter.size().width() * 0.8, splitter.size().width() * 0.1])
 
         text_hbox = qtwidgets.QHBoxLayout()
         self.picture_widget.layout().addLayout(text_hbox, 0)

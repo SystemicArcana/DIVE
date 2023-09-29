@@ -599,7 +599,7 @@ class DIVEWidget(_qtwidgets.QWidget):
         """
         self._dive_manager.add_artist(axis_name, 'infinite line', dict(name=name, data_name=data_name, visible=visible, draw_order=draw_order, legend_text=legend_text, pos=pos, pos_field=pos_field, color=color, color_field=color_field, colormap=colormap, color_label=color_label, color_unit=color_unit, is_vertical=is_vertical))
 
-    def add_polygon_artist(self, axis_name, name, data_name, x_field, y_field, visible=True, draw_order=0, legend_text=None, edge_width=0, edge_width_field=None, color='g', color_field=None, colormap='viridis', color_label=None, color_unit=None, edge_color='g', edge_color_field=None, edge_colormap='viridis', edge_color_label=None, edge_color_unit=None):
+    def add_polygon_artist(self, axis_name, name, data_name, x_field, y_field, z_field=None, visible=True, draw_order=0, legend_text=None, edge_width=0, edge_width_field=None, color='g', color_field=None, colormap='viridis', color_label=None, color_unit=None, edge_color='g', edge_color_field=None, edge_colormap='viridis', edge_color_label=None, edge_color_unit=None):
         """
         Add a polygon artist to an axis in DIVE.
 
@@ -616,6 +616,9 @@ class DIVEWidget(_qtwidgets.QWidget):
             Every value in this field must be a 1D numpy.ndarray.
         y_field : str
             The name of the field in the data object that contains the y coordinates for this artist.
+            Every value in this field must be a 1D numpy.ndarray.
+        z_field : str
+            The name of the field in the data object that contains the z coordinates for this artist.
             Every value in this field must be a 1D numpy.ndarray.
         visible : bool (Default: True)
             Toggle whether this artist is visible.
@@ -675,7 +678,7 @@ class DIVEWidget(_qtwidgets.QWidget):
 
         It is possible to cycle through the colorbars in an axis by clicking on the colorbar.
         """
-        self._dive_manager.add_artist(axis_name, 'polygon', dict(name=name, data_name=data_name, x_field=x_field, y_field=y_field, visible=visible, draw_order=draw_order, legend_text=legend_text, edge_width=edge_width, edge_width_field=edge_width_field, color=color, color_field=color_field, colormap=colormap, color_label=color_label, color_unit=color_unit, edge_color=edge_color, edge_color_field=edge_color_field, edge_colormap=edge_colormap, edge_color_label=edge_color_label, edge_color_unit=edge_color_unit))
+        self._dive_manager.add_artist(axis_name, 'polygon', dict(name=name, data_name=data_name, x_field=x_field, y_field=y_field, z_field=z_field, visible=visible, draw_order=draw_order, legend_text=legend_text, edge_width=edge_width, edge_width_field=edge_width_field, color=color, color_field=color_field, colormap=colormap, color_label=color_label, color_unit=color_unit, edge_color=edge_color, edge_color_field=edge_color_field, edge_colormap=edge_colormap, edge_color_label=edge_color_label, edge_color_unit=edge_color_unit))
 
     def add_rectangle_artist(self, axis_name, name, data_name=None, visible=True, draw_order=0, legend_text=None, x_pos=0, x_pos_field=None, y_pos=0, y_pos_field=None, edge_width=0, edge_width_field=None, width=1, width_field=None, height=1, height_field=None, color='g', color_field=None, colormap='viridis', color_label=None, color_unit=None, edge_color='g', edge_color_field=None, edge_colormap='viridis', edge_color_label=None, edge_color_unit=None):
         """
