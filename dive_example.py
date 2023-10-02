@@ -30,7 +30,14 @@ if __name__ == '__main__':
     type_vals = np.full(n_1d, 'sin')
     type_vals[1::2] = 'cos'
     data_1d = pd.DataFrame({'x': x, 'y': y, 'z': np.arange(n_1d), 'type': type_vals, 'time_tz': pd.date_range('1/1/2020', periods=n_1d, freq='1S', tz='US/Pacific')})
-    data_2d = pd.DataFrame({'x': [np.array([1, 2, 2, 1, 0, 0])] * n_2d, 'y': [np.array([2, 1, 0, -1, 0, 1])] * n_2d, 'tst': [np.array([1, 1, 2, 0, -1, 1])] * n_2d, 'z': pd.Series([np.random.randint(0, 101, (5, 10)) for i in range(n_2d)]), 'time': pd.date_range('1/1/2020', periods=n_2d, freq='1S', tz='US/Pacific')})
+    data_2d = pd.DataFrame({'x': [np.array([1, 2, 2, 1, 0, 0])] * n_2d, 
+                            'y': [np.array([2, 1, 0, -1, 0, 1])] * n_2d, 
+                            'tst': [np.array([1, 1, 2, 0, -1, 1])] * n_2d, 
+                            'tst2': [np.array([0, 0, 0, 0, 0, 0])] * n_2d,
+                            'tst3': np.linspace(-np.pi, np.pi, n_2d),
+                            'tst4': np.full(n_2d, 5),
+                            'z': pd.Series([np.random.randint(0, 101, (5, 10)) for i in range(n_2d)]),
+                            'time': pd.date_range('1/1/2020', periods=n_2d, freq='1S', tz='US/Pacific')})
     surface_data = pd.DataFrame({'x': [np.arange(5)], 'y': [np.arange(5)], 'z': [np.random.randint(10, 200, (5, 5))]})
 
     # Add data objects
@@ -51,20 +58,20 @@ if __name__ == '__main__':
     widget.add_axis_group(name='Example Axis Group', row_count=3, column_count=3, axis_names=['Time vs Height', 'X vs Y', 'Str vs Time vs Num'], rows=[0, 1, 1], columns=[0, 0, 1], row_spans=[1, 2, 2], column_spans=[3, 1, 2])
 
     # Add example artists
-    widget.add_scatter_artist(axis_name='X vs Y', name='Scatter Example', data_name='1D', x_field='x', y_field='y', label_field='type', legend_text='1D', marker_color_field='type', marker_colormap='tab10', marker_color_label='Type', line_color_field='time_tz', line_colormap='hsl', line_color_label='Time')
-    widget.add_image_artist(axis_name='X vs Y', name='Image Example', data_name='2D', x_pos=-2, y_pos=0, color_field='z', colormap='viridis', color_label='Image Vals', color_unit=['celsius', 'fahrenheit'])
-    widget.add_infinite_line_artist(axis_name='X vs Y', name='Infinite Line Example', data_name='1D', pos_field='x', is_vertical=True)
+    # widget.add_scatter_artist(axis_name='X vs Y', name='Scatter Example', data_name='1D', x_field='x', y_field='y', label_field='type', legend_text='1D', marker_color_field='type', marker_colormap='tab10', marker_color_label='Type', line_color_field='time_tz', line_colormap='hsl', line_color_label='Time')
+    # widget.add_image_artist(axis_name='X vs Y', name='Image Example', data_name='2D', x_pos=-2, y_pos=0, color_field='z', colormap='viridis', color_label='Image Vals', color_unit=['celsius', 'fahrenheit'])
+    # widget.add_infinite_line_artist(axis_name='X vs Y', name='Infinite Line Example', data_name='1D', pos_field='x', is_vertical=True)
     widget.add_polygon_artist(axis_name='X vs Y', name='Polygon Artist', data_name='2D', x_field='x', y_field='y')
-    widget.add_surface_artist(axis_name='X vs Y vs Z', name='Surface Example', data_name='surface', x_field='x', y_field='y', z_field='z', color_field='z')
-    widget.add_arrow_artist(axis_name='Time vs Height', name='Arrow Example', data_name='1D', x_field='time_tz', y_field='z', label_field='type', legend_text='1D Arrow', arrow_spacing=2, arrow_color_field='time_tz', arrow_colormap='hsl', arrow_color_label='Time', line_color_field='type', line_color_label='Type', line_colormap='hsl')
-    widget.add_scatter_artist(axis_name='Str vs Time vs Num', name='3D Scatter Example', data_name='1D', x_field='type', y_field='time_tz', z_field='z', legend_text='1D')
+    # widget.add_surface_artist(axis_name='X vs Y vs Z', name='Surface Example', data_name='surface', x_field='x', y_field='y', z_field='z', color_field='z')
+    # widget.add_arrow_artist(axis_name='Time vs Height', name='Arrow Example', data_name='1D', x_field='time_tz', y_field='z', label_field='type', legend_text='1D Arrow', arrow_spacing=2, arrow_color_field='time_tz', arrow_colormap='hsl', arrow_color_label='Time', line_color_field='type', line_color_label='Type', line_colormap='hsl')
+    # widget.add_scatter_artist(axis_name='Str vs Time vs Num', name='3D Scatter Example', data_name='1D', x_field='type', y_field='time_tz', z_field='z', legend_text='1D')
     
-    # Add example table rows
-    widget.add_table_row(index=None, data_name='1D', field_name='x', label='X Value', operation='sum', color_criteria=[('<', -500, 'r')])
-    widget.add_table_row(index=None, data_name='1D', field_name='y', label='Y Value', operation='mean', color_criteria=[('>=', 0, 'orange')])
-    widget.add_table_row(index=None, data_name='1D', field_name='z', label='Z Value', operation='latest', color_criteria=[('>', 1000, 'yellow')])
-    widget.add_table_row(index=None, data_name='1D', field_name='type', label='Type', operation='latest', color_criteria=[('==', 'sin', 'red'), ('==', 'cos', 'green')])
-    widget.add_table_row(index=None, data_name='1D', field_name='time_tz', label='Time', operation='latest', color_criteria=[('change', None, 'b')])
+    # # Add example table rows
+    # widget.add_table_row(index=None, data_name='1D', field_name='x', label='X Value', operation='sum', color_criteria=[('<', -500, 'r')])
+    # widget.add_table_row(index=None, data_name='1D', field_name='y', label='Y Value', operation='mean', color_criteria=[('>=', 0, 'orange')])
+    # widget.add_table_row(index=None, data_name='1D', field_name='z', label='Z Value', operation='latest', color_criteria=[('>', 1000, 'yellow')])
+    # widget.add_table_row(index=None, data_name='1D', field_name='type', label='Type', operation='latest', color_criteria=[('==', 'sin', 'red'), ('==', 'cos', 'green')])
+    # widget.add_table_row(index=None, data_name='1D', field_name='time_tz', label='Time', operation='latest', color_criteria=[('change', None, 'b')])
 
     # Display one of the axes that was added
     widget.display_axis('X vs Y')

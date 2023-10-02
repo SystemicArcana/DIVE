@@ -996,7 +996,7 @@ class PolygonArtist(Artist):
         x = self.field_to_numeric(data_obj, valid_idx, str_maps['x'], self.x_field, is_1d=False, get_last=True, norm_limits=norm_limits['x'])
         y = self.field_to_numeric(data_obj, valid_idx, str_maps['y'], self.y_field, is_1d=False, get_last=True, norm_limits=norm_limits['y'])
         z = self.field_to_numeric(data_obj, valid_idx, str_maps['z'], self.z_field, is_1d=False, get_last=True, norm_limits=norm_limits['z'])
-        visual_input['pos'] = np.column_stack([x, y]) if z is None else np.column_stack([x, y, z])
+        visual_input['pos'] = np.column_stack([x, y]) if z is None else np.column_stack([x, y, np.full(len(x), z)])
 
         if self.edge_width_field is None:
             visual_input['border_width'] = self.edge_width
@@ -1016,7 +1016,7 @@ class PolygonArtist(Artist):
         elif limit_type == 'y':
             return self.calc_limits(data_obj, valid_idx, self.y_field, is_1d=False, get_last=is_time)
         elif limit_type == 'z':
-            return self.calc_limits(data_obj, valid_idx, self.z_field, is_1d=True, get_last=is_time)
+            return self.calc_limits(data_obj, valid_idx, self.z_field, is_1d=False, get_last=is_time)
         else:
             color_fields, color_keys = [self.color_field], [(self.colormap, self.color_label, self.color_unit)]
             if self.edge_width > 0 or self.edge_width_field is not None:
@@ -1109,12 +1109,9 @@ class PolygonArtist(Artist):
                 return 'Every array in y_field must have the same length as its corresponding array in x_field.'
             
             if attrs['z_field']:
-                if not (data.loc[:, attrs['z_field']].map(lambda z: hasattr(z, '__len__'))).any():
-                    return 'z_field must be a field of arrays.'
-                if (data.loc[:, attrs['x_field']].map(len) != data.loc[:, attrs['z_field']].map(len)).any():
-                    return 'Every array in x_field must have the same length as its corresponding array in z_field.'
-                elif (data.loc[:, attrs['y_field']].map(len) != data.loc[:, attrs['z_field']].map(len)).any():
-                    return 'Every array in y_field must have the same length as its corresponding array in z_field.'
+                err_msg = validators.validate_field(attr, data_objs, attrs['data_name'], attrs[attr], required_names=['x_field', 'y_field'], optional_names=['z_field', 'label_field', 'line_color_field', 'marker_color_field', 'edge_color_field'])
+                if err_msg is not None:
+                    return err_msg
 
         for attr in attrs:
             setattr(self, attr, attrs[attr])

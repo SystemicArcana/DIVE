@@ -529,7 +529,8 @@ class PolygonWidget(qtwidgets.QWidget):
             self.color_field.setCurrentText(artist['color_field'])
             self.edge_width_field.setCurrentText(artist['edge_width_field'])
             self.edge_color_field.setCurrentText(artist['edge_color_field'])
-
+            if self.z_field is not None:
+                self.z_field.setCurrentText(artist['z_field'])
     def get_values(self):
         return {'artist_type': 'polygon',
                 'visible': self.visible_val.isChecked(),
