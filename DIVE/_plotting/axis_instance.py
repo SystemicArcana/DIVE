@@ -381,8 +381,8 @@ class AxisInstance:
             nums.append(nums[-1] * 24 + delta.hours)
             nums.append(nums[-1] * 60 + delta.minutes)
             nums.append(int(np.floor(tdelta.total_seconds())))
-            freq = ['YS', 'MS', 'D', 'H', 'T', 'S']
-            freq_map = {'YS': 'year', 'MS': 'month', 'D': 'day', 'H': 'hour', 'T': 'minute', 'S': 'second'}
+            freq = ['YS', 'MS', 'D', 'H', 'T', 's']
+            freq_map = {'YS': 'year', 'MS': 'month', 'D': 'day', 'H': 'hour', 'T': 'minute', 's': 'second'}
             intervals = [[1, 2, 4, 5, 10, 20, 40, 50, 100], [1, 2, 3, 4, 6], [1, 2, 4, 7, 14], [1, 2, 3, 4, 6, 12], [1, 2, 5, 10, 15, 30], [1, 2, 5, 10, 15, 30]]
             maxticks = [10, 11, 10, 11, 10, 10]
             byranges = [None, range(1, 13), range(1, 32), range(0, 24), range(0, 60), range(0, 60)]

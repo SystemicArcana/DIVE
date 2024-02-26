@@ -2,7 +2,9 @@ from . import custom_qt
 import importlib
 import vispy.app as vpapp
 import vispy.io as vpio
-import vispy.visuals as vpvisuals
+from vispy.visuals.markers import MarkersVisual
+from vispy.visuals.line import arrow
+
 qt = vpapp.use_app().backend_name
 try:
     qtwidgets = importlib.import_module('{}.QtWidgets'.format(qt))
@@ -55,7 +57,7 @@ class ArrowWidget(qtwidgets.QWidget):
         arrow_group.setLayout(qtwidgets.QFormLayout())
         self.layout().addRow(arrow_group)
         self.arrow_shape = qtwidgets.QComboBox()
-        self.arrow_shape.addItems(sorted(vpvisuals.line.arrow.ARROW_TYPES))
+        self.arrow_shape.addItems(sorted(arrow.ARROW_TYPES))
         self.arrow_shape.setCurrentText(artist['arrow_shape'])
         arrow_group.layout().addRow('Arrow Shape:', self.arrow_shape)
         self.arrow_spacing = qtwidgets.QDoubleSpinBox()
@@ -526,11 +528,12 @@ class PolygonWidget(qtwidgets.QWidget):
             self.data_name.setCurrentText(artist['data_name'])
             self.x_field.setCurrentText(artist['x_field'])
             self.y_field.setCurrentText(artist['y_field'])
+            if self.z_field is not None:
+                self.z_field.setCurrentText(artist['z_field'])
             self.color_field.setCurrentText(artist['color_field'])
             self.edge_width_field.setCurrentText(artist['edge_width_field'])
             self.edge_color_field.setCurrentText(artist['edge_color_field'])
-            if self.z_field is not None:
-                self.z_field.setCurrentText(artist['z_field'])
+
     def get_values(self):
         return {'artist_type': 'polygon',
                 'visible': self.visible_val.isChecked(),
@@ -693,7 +696,7 @@ class ScatterWidget(qtwidgets.QWidget):
         marker_group.setLayout(qtwidgets.QFormLayout())
         self.layout().addRow(marker_group)
         self.marker = qtwidgets.QComboBox()
-        self.marker.addItems(sorted(vpvisuals.MarkersVisual._marker_funcs))
+        self.marker.addItems(sorted(MarkersVisual._symbol_shader_values.keys()))
         self.marker.setCurrentText(artist['marker'])
         marker_group.layout().addRow('Marker:', self.marker)
         self.marker_size = add_spinbox(marker_group.layout(), 'Size:', 0.0, float('inf'), artist['marker_size'])

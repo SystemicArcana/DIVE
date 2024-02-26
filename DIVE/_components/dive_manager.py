@@ -167,8 +167,7 @@ class DIVEManager:
         self.table.setSelectionMode(qtwidgets.QAbstractItemView.NoSelection)
         self.table.cellDoubleClicked.connect(lambda iRow, _: self.callback_data_inspect(self.table_rows[iRow]))
         splitter.addWidget(self.table)
-        # splitter.setSizes([int(splitter.size().width() * 0.1), int(splitter.size().width() * 0.8), int(splitter.size().width() * 0.1)])
-        splitter.setSizes([splitter.size().width() * 0.1, splitter.size().width() * 0.8, splitter.size().width() * 0.1])
+        splitter.setSizes([int(splitter.size().width() * 0.1), int(splitter.size().width() * 0.8), int(splitter.size().width() * 0.1)])
 
         text_hbox = qtwidgets.QHBoxLayout()
         self.picture_widget.layout().addLayout(text_hbox, 0)
@@ -243,12 +242,12 @@ class DIVEManager:
 
     def get_hold_time(self):
         if isinstance(self.min_time, pd.Timestamp):
-            return pd.Timedelta.max if self.settings['hold_time'] == 0 else pd.Timedelta(self.settings['hold_time'], unit='S')
+            return pd.Timedelta.max if self.settings['hold_time'] == 0 else pd.Timedelta(self.settings['hold_time'], unit='s')
         else:
             return pd.Timedelta.max.total_seconds() if self.settings['hold_time'] == 0 else self.settings['hold_time']
 
     def get_time_step(self):
-        return pd.Timedelta(self.settings['time_step'], unit='S') if isinstance(self.min_time, pd.Timestamp) else self.settings['time_step']
+        return pd.Timedelta(self.settings['time_step'], unit='s') if isinstance(self.min_time, pd.Timestamp) else self.settings['time_step']
 
     def grab_picture(self):
         """
@@ -409,7 +408,7 @@ class DIVEManager:
             If None, all rows will be updated.
         """
         change_idx = {}
-        table_change_time = pd.Timedelta(self.settings['table_change_time'], unit='S') if isinstance(self.min_time, pd.Timestamp) else self.settings['table_change_time']
+        table_change_time = pd.Timedelta(self.settings['table_change_time'], unit='s') if isinstance(self.min_time, pd.Timestamp) else self.settings['table_change_time']
         rows = range(len(self.table_rows)) if row_index is None else [row_index]
         for iRow in rows:
             value, row_color, text_color = self.table_rows[iRow].get_row_data(self.data, change_idx, self.current_time, self.settings['timezone'], table_change_time)
@@ -585,7 +584,7 @@ class DIVEManager:
                 self.set_settings(settings)
 
     def callback_time_slider(self, time):
-        self.set_current_time(helper_functions.safe_time_math(self.min_time, pd.Timedelta(time, unit='S') if isinstance(self.min_time, pd.Timestamp) else time, add=True))
+        self.set_current_time(helper_functions.safe_time_math(self.min_time, pd.Timedelta(time, unit='s') if isinstance(self.min_time, pd.Timestamp) else time, add=True))
 
     def callback_timer(self):
         time = helper_functions.safe_time_math(self.current_time, self.get_time_step(), add=not self.reverse_animation)

@@ -6,7 +6,9 @@ import vispy.color as vpcolor
 import vispy.geometry as vpgeometry
 import vispy.io as vpio
 import vispy.scene as vpscene
-import vispy.visuals as vpvisuals
+from vispy.visuals.markers import MarkersVisual
+from vispy.visuals.line import arrow
+from vispy.visuals import transforms
 
 class Artist:
     def __init__(self):
@@ -58,7 +60,7 @@ class Artist:
             return [np.min(val_array), np.max(val_array)], [], ['num']
         elif pd.api.types.is_datetime64tz_dtype(val_array):
             nulls = val_array.isnull()
-            val_array = (val_array.view('int64') / 1e9)[~nulls]
+            val_array = (val_array.astype('int64') / 1e9)[~nulls]
             if len(val_array) == 0:
                 return [], [], []
             elif size is not None:
@@ -147,7 +149,7 @@ class Artist:
                 output = np.real(array)
             elif pd.api.types.is_datetime64tz_dtype(array):
                 nulls = array.isnull()
-                array = array.view('int64') / 1e9
+                array = array.astype('int64') / 1e9
                 array[nulls] = np.nan
                 output = array
             else:
@@ -357,8 +359,8 @@ class ArrowArtist(Artist):
             attrs['arrow_shape'] = state['arrow_shape']
             if not isinstance(attrs['arrow_shape'], str):
                 return 'arrow_shape must be of type: str'
-            elif attrs['arrow_shape'] not in vpvisuals.line.arrow.ARROW_TYPES:
-                return 'arrow_shape must be one of the following: {}'.format(str(vpvisuals.line.arrow.ARROW_TYPES)[1:-1])
+            elif attrs['arrow_shape'] not in arrow.ARROW_TYPES:
+                return 'arrow_shape must be one of the following: {}'.format(str(arrow.ARROW_TYPES)[1:-1])
         if 'arrow_spacing' in state:
             attrs['arrow_spacing'] = state['arrow_spacing']
             if not isinstance(attrs['arrow_spacing'], (int, np.integer)):
@@ -464,7 +466,7 @@ class BoxArtist(Artist):
         for face in self.faces:
             face_lower = face.lower()
             visual_input['planes'].append('{}{}'.format('-' if face == face_lower else '+', face_lower))
-        transform = vpvisuals.transforms.MatrixTransform()
+        transform = transforms.MatrixTransform()
         transform.translate([x, y, z])
         return visual_input, transform
 
@@ -758,7 +760,7 @@ class ImageArtist(Artist):
             height = self.value_to_numeric(None, self.height, norm_limits=norm_limits['y'], is_size=True)
         else:
             height = self.field_to_numeric(data_obj, valid_idx, None, self.height_field, is_1d=True, get_last=True, norm_limits=norm_limits['y'], is_size=True)
-        transform = vpvisuals.transforms.STTransform()
+        transform = transforms.STTransform()
         transform.scale = (width / y_shape, height / x_shape)
         transform.translate = (x - width / 2, y - height / 2)
         return visual_input, transform
@@ -1158,7 +1160,7 @@ class RectangleArtist(Artist):
         to_shape = (1,)
         visual_input['color'] = self.create_color(data_obj, valid_idx, str_maps['color'], color_limits, self.color, self.color_field, self.colormap, self.color_label, self.color_unit, is_1d=True, get_last=True, to_shape=to_shape)
         visual_input['border_color'] = self.create_color(data_obj, valid_idx, str_maps['color'], color_limits, self.edge_color, self.edge_color_field, self.edge_colormap, self.edge_color_label, self.edge_color_unit, is_1d=True, get_last=True, to_shape=to_shape) if visual_input['border_width'] > 0 else self.edge_color
-        transform = vpvisuals.transforms.STTransform()
+        transform = transforms.STTransform()
         transform.translate = (x, y, 0)
         return visual_input, transform
 
@@ -1434,14 +1436,8 @@ class ScatterArtist(Artist):
             attrs['marker'] = state['marker']
             if not isinstance(attrs['marker'], str):
                 return 'marker must be of type: str'
-            else:
-                try:
-                    if attrs['marker'] not in vpvisuals.markers.symbol_aliases:
-                        return 'marker must be one of the following: {}'.format(str(sorted(vpvisuals.markers.symbol_aliases))[1:-1])                    
-                except:
-                    # For older versions of Vispy
-                    if attrs['marker'] not in vpvisuals.MarkersVisual._marker_funcs:
-                        return 'marker must be one of the following: {}'.format(str(sorted(vpvisuals.MarkersVisual._marker_funcs))[1:-1])
+            elif attrs['marker'] not in MarkersVisual._symbol_shader_values.keys():
+                return 'marker must be one of the following: {}'.format(str(sorted(MarkersVisual._symbol_shader_values.keys()))[1:-1])
         for attr in ['label_size', 'draw_order', 'label_draw_order', 'line_width', 'marker_size', 'edge_width']:
             if attr in state:
                 attrs[attr] = state[attr]
